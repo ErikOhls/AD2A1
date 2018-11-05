@@ -42,29 +42,21 @@ def birthday_present(P, n, t):
         for j in range(t + 1):
             # If current Set value is equal to current Target value
             if P[i] == j:
-                #print i, j
-                #print "is true because P[i] = j"
                 A[i][j] = True;
             # If Cell above is true
             elif A[i-1][j] == True:
-                #print i, j
-                #print "is true beacuse above is true"
                 A[i][j] = True;
             # Look back only if range is within target range
             elif j-P[i] > 0 and j-P[i] < t:
                 # If whatever you have left after subtracting Set value from current target value
                 if A[i-1][j-P[i]] == True:
                     A[i][j] = True;
-                    #print i, j
-                    #print "looking at:"
-                    #print [i-1], j-P[i]
                 else:
                     A[i][j] = False
             else:
                 A[i][j] = False;
 
     # Visualize Matrix
-
     print " "
     for row in A:
         for val in row:
