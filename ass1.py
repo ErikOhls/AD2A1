@@ -79,7 +79,7 @@ def birthday_present_subset(P, n, t):
     A = [[None for i in range(t + 1)] for j in range(n + 1)]
 
     #Sort P ascending
-    P.sort()
+    #P.sort()
 
     # Base case
     if (t == 0):
@@ -120,17 +120,19 @@ def birthday_present_subset(P, n, t):
             print '{:4}'.format(val),
         print
 
-    resultRow = 0
-    for i in range(n):
-        if A[i][t]:
-            resultRow = i
-            break
+    result = []
+    while t > 0:
+        for i in range(n):
+            if A[i][t]:
+                result = result + [P[i]]
+                t = t - P[i]
+                break
 
     if A[n-1][t]:
-        print [P[resultRow]]
-        return [P[resultRow]]
+        print result
+        return result
     else:
-        return['NEJ']
+        return[]
 
 class BirthdayPresentTest(unittest.TestCase):
     """Test Suite for birthday present problem
@@ -171,18 +173,13 @@ class BirthdayPresentTest(unittest.TestCase):
         t = 50
         self.assertTrue(birthday_present(P, n, t))
 
-    def test_bigaf_sanity(self):
+    def est_bigaf_sanity(self):
         P = [518533,1037066,2074132,1648264,796528,1593056,686112,1372224,244448,977792,1955584,1411168,322336,644672,1289344,78688,157376,314752,629504,1259008]
         n = len(P)
         t = 2463098
         self.assertTrue(birthday_present(P, n, t))
 
     def test_sat_sanity(self):
-        """Sanity Test for birthday_present()
-
-        This is a simple sanity check;
-        passing is not a guarantee of correctness.
-        """
         P = [2, 32, 234, 35, 12332, 1, 7, 56]
         n = len(P)
         t = 11
@@ -200,6 +197,14 @@ class BirthdayPresentTest(unittest.TestCase):
         self.assertTrue(birthday_present(P, n, t))
         self.assertItemsEqual(birthday_present_subset(P, n, t),
                               [56, 7, 234, 2])
+
+    def test_tt_sanity(self):
+        P = [2,3,5,8]
+        n = len(P)
+        t = 10
+        self.assertTrue(birthday_present(P, n, t))
+        self.assertItemsEqual(birthday_present_subset(P, n, t),
+                              [5,3,2])
 
 
 if __name__ == '__main__':
