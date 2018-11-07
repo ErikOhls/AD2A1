@@ -21,9 +21,6 @@ def birthday_present(P, n, t):
     # Type: Boolean[0..n][0..t]
     A = [[None for i in range(t + 1)] for j in range(n + 1)]
 
-    #Sort P ascending
-    P.sort()
-
     # Base case
     if (t == 0):
         print "Solve 0, return true"
@@ -57,12 +54,13 @@ def birthday_present(P, n, t):
                 A[i][j] = False;
 
     # Visualize Matrix
+    '''
     print " "
     for row in A:
         for val in row:
             print '{:4}'.format(val),
         print
-
+    '''
     print A[n-1][t]
     return A[n-1][t]
 
@@ -78,16 +76,9 @@ def birthday_present_subset(P, n, t):
 
     A = [[None for i in range(t + 1)] for j in range(n + 1)]
 
-    #Sort P ascending
-    #P.sort()
-
     # Base case
-    if (t == 0):
-        print "Solve 0, return true"
-        return True
-    if (t != 0 and n == 0):
-        print "Solve empty set, return false"
-        return False
+    if(t == 0 or (t != 0 and n == 0)):
+        return []
 
     # Sum = 0 is always true
     for i in range(n + 1):
@@ -120,17 +111,18 @@ def birthday_present_subset(P, n, t):
             print '{:4}'.format(val),
         print
 
-    result = []
-    while t > 0:
-        for i in range(n):
-            if A[i][t]:
-                result = result + [P[i]]
-                t = t - P[i]
-                break
-
+    # Calculate subset if subset exists
     if A[n-1][t]:
+        result = []
+        while t > 0:
+            for i in range(n):
+                if A[i][t]:
+                    result = result + [P[i]]
+                    t = t - P[i]
+                    break
         print result
         return result
+
     else:
         return[]
 
@@ -142,7 +134,7 @@ class BirthdayPresentTest(unittest.TestCase):
     tests if you wish.
     (You may delete this class from your submitted solution.)
     """
-    '''
+    
     def test_emptySet_sanity(self):
         P = []
         n = len(P)
@@ -184,13 +176,8 @@ class BirthdayPresentTest(unittest.TestCase):
         n = len(P)
         t = 11
         self.assertFalse(birthday_present(P, n, t))
-'''
+    
     def test_sol_sanity(self):
-        """Sanity Test for birthday_present_subset()
-
-        This is a simple sanity check;
-        passing is not a guarantee of correctness.
-        """
         P = [2, 32, 234, 35, 12332, 1, 7, 56]
         n = len(P)
         t = 299
@@ -198,7 +185,7 @@ class BirthdayPresentTest(unittest.TestCase):
         self.assertItemsEqual(birthday_present_subset(P, n, t),
                               [56, 7, 234, 2])
 
-    def test_tt_sanity(self):
+    def test_sol_med_sanity(self):
         P = [2,3,5,8]
         n = len(P)
         t = 10
@@ -206,6 +193,21 @@ class BirthdayPresentTest(unittest.TestCase):
         self.assertItemsEqual(birthday_present_subset(P, n, t),
                               [5,3,2])
 
+    def test_samloyd_sol_sanity(self):
+        P = [25,27,3,12,6,15,9,30,21,19]
+        n = len(P)
+        t = 50
+        self.assertTrue(birthday_present(P, n, t))
+        self.assertItemsEqual(birthday_present_subset(P, n, t),
+                              [25, 6, 19])
+
+    def test_impossible_sol_sanity(self):
+        P = [25,27,3,12,6,15,9,30,21,19]
+        n = len(P)
+        t = 2
+        self.assertFalse(birthday_present(P, n, t))
+        self.assertItemsEqual(birthday_present_subset(P, n, t),
+                              [])
 
 if __name__ == '__main__':
     unittest.main()
