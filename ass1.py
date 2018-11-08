@@ -29,38 +29,9 @@ def birthday_present(P, n, t):
         print "Solve empty set, return false"
         return False
 
-    # Sum = 0 is always true
-    for i in range(n + 1):
-        A[i][0] = True
+    # Fill boolean matrix
+    A = boolean_matrix_constructor(P, n, t, A)
 
-    # For each row
-    for i in range(n):
-        # For each column
-        for j in range(t + 1):
-            # If current Set value is equal to current Target value
-            if P[i] == j:
-                A[i][j] = True;
-            # If Cell above is true
-            elif A[i-1][j] == True:
-                A[i][j] = True;
-            # Look back only if range is within target range
-            elif j-P[i] > 0 and j-P[i] < t:
-                # If whatever you have left after subtracting Set value from current target value
-                if A[i-1][j-P[i]] == True:
-                    A[i][j] = True;
-                else:
-                    A[i][j] = False
-            else:
-                A[i][j] = False;
-
-    # Visualize Matrix
-    '''
-    print " "
-    for row in A:
-        for val in row:
-            print '{:4}'.format(val),
-        print
-    '''
     print A[n-1][t]
     return A[n-1][t]
 
@@ -80,6 +51,32 @@ def birthday_present_subset(P, n, t):
     if(t == 0 or (t != 0 and n == 0)):
         return []
 
+    # Fill boolean matrix
+    A = boolean_matrix_constructor(P, n, t, A)
+
+    # Calculate subset if subset exists
+    if A[n-1][t]:
+        result = []
+        while t > 0:
+            for i in range(n):
+                if A[i][t]:
+                    result = result + [P[i]]
+                    t = t - P[i]
+                    break
+        print result
+        return result
+
+    else:
+        return[]
+
+def boolean_matrix_constructor(P, n, t, A):
+        '''
+    Sig: int[0..n-1], int, int, Boolean[0..n][0..t] --> Boolean[0..n][0..t]
+    Pre:
+    Post:
+    Example: P = [1, 2]
+             boolean_matrix_constructor(P, len(P), 1, A[0..len(P)][0..t]) = [1, 1][1, 1] stämmer inte!!
+    '''
     # Sum = 0 is always true
     for i in range(n + 1):
         A[i][0] = True
@@ -111,20 +108,7 @@ def birthday_present_subset(P, n, t):
             print '{:4}'.format(val),
         print
 
-    # Calculate subset if subset exists
-    if A[n-1][t]:
-        result = []
-        while t > 0:
-            for i in range(n):
-                if A[i][t]:
-                    result = result + [P[i]]
-                    t = t - P[i]
-                    break
-        print result
-        return result
-
-    else:
-        return[]
+    return A
 
 class BirthdayPresentTest(unittest.TestCase):
     """Test Suite for birthday present problem
@@ -134,7 +118,7 @@ class BirthdayPresentTest(unittest.TestCase):
     tests if you wish.
     (You may delete this class from your submitted solution.)
     """
-    
+
     def test_emptySet_sanity(self):
         P = []
         n = len(P)
@@ -176,7 +160,7 @@ class BirthdayPresentTest(unittest.TestCase):
         n = len(P)
         t = 11
         self.assertFalse(birthday_present(P, n, t))
-    
+
     def test_sol_sanity(self):
         P = [2, 32, 234, 35, 12332, 1, 7, 56]
         n = len(P)
