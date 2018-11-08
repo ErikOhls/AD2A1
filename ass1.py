@@ -70,13 +70,6 @@ def birthday_present_subset(P, n, t):
         return[]
 
 def boolean_matrix_constructor(P, n, t, A):
-        '''
-    Sig: int[0..n-1], int, int, Boolean[0..n][0..t] --> Boolean[0..n][0..t]
-    Pre:
-    Post:
-    Example: P = [1, 2]
-             boolean_matrix_constructor(P, len(P), 1, A[0..len(P)][0..t]) = [1, 1][1, 1] stämmer inte!!
-    '''
     # Sum = 0 is always true
     for i in range(n + 1):
         A[i][0] = True
