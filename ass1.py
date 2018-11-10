@@ -186,5 +186,13 @@ class BirthdayPresentTest(unittest.TestCase):
         self.assertItemsEqual(birthday_present_subset(P, n, t),
                               [])
 
+    def test_duplicate_sol_sanity(self):
+        P = [1,1,1,1,1]
+        n = len(P)
+        t = 5
+        self.assertTrue(birthday_present(P, n, t))
+        self.assertItemsEqual(birthday_present_subset(P, n, t),
+                              [1,1,1,1,1])
+
 if __name__ == '__main__':
     unittest.main()
