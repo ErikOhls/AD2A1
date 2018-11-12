@@ -89,10 +89,7 @@ def boolean_matrix_constructor(P, n, t, A):
                 # If whatever you have left after subtracting Set value from current target value
                 if A[i-1][j-P[i]] == True:
                     A[i][j] = True;
-                else:
-                    A[i][j] = False
-            else:
-                A[i][j] = False;
+
 
     # Visualize Matrix
     print " "

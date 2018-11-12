@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#bin/#!/usr/env python2.7
 # -*- coding: utf-8 -*-
 '''
 Assignment 2: Ring Detection
@@ -17,6 +17,7 @@ lists, etc. DO NOT turn in a solution that uses a networkx
 implementation of a graph traversal algorithm, as doing so will result
 in a score of 0.
 """
+
 try:
     import matplotlib.pyplot as plt
     HAVE_PLT = True
@@ -33,7 +34,24 @@ def ring(G):
         ring(g2) ==> True
     """
 
+    node_list = list(G)
 
+    super_list = []
+    for i in range(len(node_list)):
+        tmp_list = list(G.adj[i])
+        #                 [Node        , adj list, visited, parent]
+        super_list.append([node_list[i], tmp_list, False, -1])
+
+    print "\n\n"
+
+    #draw_graph(G, len(G))
+
+    if is_cycle(super_list, super_list[0][0], -1):
+        print "Found cycle"
+
+    print super_list
+
+    return is_cycle(super_list, super_list[0][0], -1)
 
 def ring_extended(G):
     """
@@ -45,11 +63,28 @@ def ring_extended(G):
         ring(g2) ==>  True, [3,7,8,6,3]
     """
 
+def is_cycle(super_list, node, parent):
+    if super_list[node][2]:
+        return False
+    # Set visited True
+    super_list[node][2] = True
+    super_list[node][3] = parent
+    if node+1 < len(super_list):
+        # Iterate over adjecency list
+        for i in range(len(super_list[node][1])):
+            # if neighbor is visited and not parent
+            if super_list[super_list[node][1][i]][2] and super_list[super_list[node][1][i]][0] != parent:
+                print "found ring"
+                return True
+            is_cycle(super_list, super_list[node][1][i], super_list[node][0])
+    return False
+
 
 def draw_graph(G,r):
     """Draw graph and the detected ring
     """
     if not HAVE_PLT:
+        print "dont have plt"
         return
     pos = nx.spring_layout(G)
     plt.axis('off')
