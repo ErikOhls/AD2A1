@@ -24,6 +24,12 @@ try:
 except ImportError:
     HAVE_PLT = False
 
+class Node:
+    node = 0
+    adj = None
+    visited = False
+    parent = -1
+
 def ring(G):
     """
     Sig: graph G(node,edge) ==> boolean
@@ -34,6 +40,23 @@ def ring(G):
         ring(g2) ==> True
     """
 
+    init_list = list(G)
+    node_list = []
+
+    for i in range(len(init_list)):
+        node_list.append(Node())
+        node_list[i].node = init_list[i]
+        node_list[i].adj = list(G.adj[i])
+
+    found_switch = False
+
+    is_class_cycle(node_list, node_list[0].node, -1, found_switch)
+
+    for i in range(len(node_list)):
+        print_node(node_list[i])
+        print ""
+
+    '''
     node_list = list(G)
 
     super_list = []
@@ -46,12 +69,21 @@ def ring(G):
 
     #draw_graph(G, len(G))
 
-    if is_cycle(super_list, super_list[0][0], -1):
+    found = False
+
+    if is_cycle(super_list, super_list[0][0], -1, found):
         print "Found cycle"
 
     print super_list
 
-    return is_cycle(super_list, super_list[0][0], -1)
+    return is_cycle(super_list, super_list[0][0], -1, found)
+    '''
+
+def print_node(N):
+    print "Node:", N.node, "Adjecency:"
+    for i in N.adj:
+        print i
+    print "Visited:", N.visited,"Parent:", N.parent
 
 def ring_extended(G):
     """
@@ -63,9 +95,30 @@ def ring_extended(G):
         ring(g2) ==>  True, [3,7,8,6,3]
     """
 
-def is_cycle(super_list, node, parent):
+def is_class_cycle(node_list, node, parent, found_switch):
+    if node_list[node].visited:
+        print "Return from visited node:", node
+        return
+    node_list[node].visited = True
+    node_list[node].parent = parent
+    # Only continue if node is within range
+    if node < len(node_list):
+        # Iterate over adjecency list
+        for i in range(len(node_list[node].adj)):
+            # If neighbor is visited and node.adj != parent
+            if node_list[node_list[node].adj[i]].visited and node_list[node_list[node].adj[i]].node != parent:
+                print "Ring found at:", node, node_list[node_list[node].adj[i]].node
+                found_switch = True
+                return found_switch
+            print "Recurring from node:", node_list[node].adj[i]
+            is_class_cycle(node_list, node_list[node].adj[i], node, found_switch)
+    print "Bottom return from node:", node
+    return found_switch
+
+def is_cycle(super_list, node, parent, found):
     if super_list[node][2]:
-        return False
+        print "Return from node:", node, "case visited"
+        return
     # Set visited True
     super_list[node][2] = True
     super_list[node][3] = parent
@@ -74,10 +127,13 @@ def is_cycle(super_list, node, parent):
         for i in range(len(super_list[node][1])):
             # if neighbor is visited and not parent
             if super_list[super_list[node][1][i]][2] and super_list[super_list[node][1][i]][0] != parent:
+                print node, super_list[super_list[node][1][i]][0]
                 print "found ring"
+                found = True
                 return True
-            is_cycle(super_list, super_list[node][1][i], super_list[node][0])
-    return False
+            is_cycle(super_list, super_list[node][1][i], super_list[node][0], found)
+    print "Return from node:", node
+    return found
 
 
 def draw_graph(G,r):
@@ -141,12 +197,16 @@ class RingTest(unittest.TestCase):
         This is a simple sanity check for your function;
         passing is not a guarantee of correctness.
         """
+        """
         testgraph = nx.Graph([(0,1),(0,2),(0,3),(2,4),(2,5),(3,6),(3,7),(7,8)])
         self.assertFalse(ring(testgraph))
         testgraph.add_edge(6,8)
         self.assertTrue(ring(testgraph))
-
-    def test_extended_sanity(self):
+        """
+        testgraph = nx.Graph([(0,1), (0,2),(1,2)])
+        self.assertTrue(ring(testgraph))
+        '''
+   def test_extended_sanity(self):
         """sanity test for returned ring"""
         testgraph = nx.Graph([(0,1),(0,2),(0,3),(2,4),(2,5),(3,6),(3,7),(7,8),(6,8)])
         found, thering = ring_extended(testgraph)
@@ -154,6 +214,7 @@ class RingTest(unittest.TestCase):
         self.is_ring(testgraph, thering)
         # Uncomment to visualize the graph and returned ring:
         #draw_graph(testgraph,thering)
+        '''
     @classmethod
     def tearDownClass(cls):
         if HAVE_PLT:
