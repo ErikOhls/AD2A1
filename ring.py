@@ -56,34 +56,14 @@ def ring(G):
         print_node(node_list[i])
         print ""
 
-    '''
-    node_list = list(G)
-
-    super_list = []
-    for i in range(len(node_list)):
-        tmp_list = list(G.adj[i])
-        #                 [Node        , adj list, visited, parent]
-        super_list.append([node_list[i], tmp_list, False, -1])
-
-    print "\n\n"
-
     #draw_graph(G, len(G))
 
-    found = False
-
-    if is_cycle(super_list, super_list[0][0], -1, found):
-        print "Found cycle"
-
-    print super_list
-
-    return is_cycle(super_list, super_list[0][0], -1, found)
-    '''
 
 def print_node(N):
     print "Node:", N.node, "Adjecency:"
     for i in N.adj:
         print i
-    print "Visited:", N.visited,"Parent:", N.parent
+    print "Visited:", N.visited, "." ,"Parent:", N.parent
 
 def ring_extended(G):
     """
@@ -96,12 +76,13 @@ def ring_extended(G):
     """
 
 def is_class_cycle(node_list, node, parent, found_switch):
+    print "visiting node:", node
     if node_list[node].visited:
         print "Return from visited node:", node
         return
     node_list[node].visited = True
     node_list[node].parent = parent
-    # Only continue if node is within range
+    # Continue only if node is within range
     if node < len(node_list):
         # Iterate over adjecency list
         for i in range(len(node_list[node].adj)):
@@ -110,30 +91,10 @@ def is_class_cycle(node_list, node, parent, found_switch):
                 print "Ring found at:", node, node_list[node_list[node].adj[i]].node
                 found_switch = True
                 return found_switch
-            print "Recurring from node:", node_list[node].adj[i]
+            print "Recurring on node:", node_list[node].adj[i]
             is_class_cycle(node_list, node_list[node].adj[i], node, found_switch)
     print "Bottom return from node:", node
     return found_switch
-
-def is_cycle(super_list, node, parent, found):
-    if super_list[node][2]:
-        print "Return from node:", node, "case visited"
-        return
-    # Set visited True
-    super_list[node][2] = True
-    super_list[node][3] = parent
-    if node+1 < len(super_list):
-        # Iterate over adjecency list
-        for i in range(len(super_list[node][1])):
-            # if neighbor is visited and not parent
-            if super_list[super_list[node][1][i]][2] and super_list[super_list[node][1][i]][0] != parent:
-                print node, super_list[super_list[node][1][i]][0]
-                print "found ring"
-                found = True
-                return True
-            is_cycle(super_list, super_list[node][1][i], super_list[node][0], found)
-    print "Return from node:", node
-    return found
 
 
 def draw_graph(G,r):
