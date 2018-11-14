@@ -33,36 +33,150 @@ class Node:
 def ring(G):
     """
     Sig: graph G(node,edge) ==> boolean
-    Pre:
-    Post:
+    Pre: Graph is undirected graph
+    Post: True if graph contains cycle, false if not
     Example:
         ring(g1) ==> False
         ring(g2) ==> True
     """
+    if len(G) == 0:
+        return False
 
     init_list = list(G)
     node_list = []
 
+    # Variant: len(init_list)-i
     for i in range(len(init_list)):
         node_list.append(Node())
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
 
-    return is_cycle_new(node_list)
+    index = 0
+    found, set = is_cycle_new(node_list, index)
+    not_visited, index = all_visited(node_list)
+    # Invariat: not_visited, found
+    while not_visited and not found:
+        found, set = is_cycle_new(node_list, index)
+        not_visited, index = all_visited(node_list)
+    return found
 
-    print "NODE LIST"
-    print_node_list(node_list)
+def ring_extended(G):
+    """
+    Sig: graph G(node,edge) ==> boolean, int[0..j-1]
+    Pre: Graph is undirected graph
+    Post: True and list of set of cycle if cycle exists, false and empty list otherwise
+    Example:
+        ring(g1) ==> False, []
+        ring(g2) ==>  True, [3,7,8,6,3]
+    """
 
-    #draw_graph(G, len(G))
+    if len(G) == 0:
+        return False
 
-    #found, link = is_cycle_it(node_list)
+    init_list = list(G)
+    node_list = []
 
-    #return found
+    # Variant: len(init_list)-i
+    for i in range(len(init_list)):
+        node_list.append(Node())
+        node_list[i].node = init_list[i]
+        node_list[i].adj = list(G.adj[i])
+
+    index = 0
+    found, set = is_cycle_new(node_list, index)
+    not_visited, index = all_visited(node_list)
+    # Invariat: not_visited, found
+    while not_visited and not found:
+        found, set = is_cycle_new(node_list, index)
+        not_visited, index = all_visited(node_list)
+    return found, set
+
+
+def is_cycle_new(node_list, index):
+    """
+    Sig: Node node_list[0..n], int index  ==> boolean, int[0..j-1]
+    Pre: node_list is list of nodes, index is within range of list
+    Post: True and list of set of cycle first cycle found, or False and empty list
+    Example:
+        is_cycle(g1) ==> False, []
+        is_cycle(g2) ==>  True, [3,7,8,6,3]
+    """
+    current = node_list[index]
+    # Initialize stack intended to track current tree of nodes
+    # Type: Node[]
+    stack = [current]
+    # Iterate over tree
+    # Invariant: stack
+    while stack:
+        print "STACK:"
+        print_node_list(stack)
+        current.visited = True
+        # Iterate over current node's adjecent nodes
+        # Variant: len(current.adj)-j
+        for j in range(len(current.adj)):
+            print "current node:", current.node
+
+            # Set node's parent only if not root node
+            if len(stack) > 1:
+                node_list[current.node].parent = stack[-2].node
+
+            # If adjacent node is visited, not parent, and in current stack, cycle has been found
+            if node_list[current.adj[j]].node != current.parent and \
+                node_list[current.adj[j]].visited and \
+                is_in_stack(stack, node_list[current.adj[j]]):
+                print "True here"
+                set = []
+                key_node = node_list[current.adj[j]].node
+                # Add node number to set until root of cycle is reached
+                # Invariant: key_node
+                while current.node != key_node:
+                    print current.node, key_node
+                    set.append(stack.pop().node)
+                    current = stack[-1]
+                set.append(stack.pop().node)
+                set.append(set[0])
+                return True, set
+
+            # If adjacent node is same as parent or visited
+            if node_list[current.adj[j]].node == current.parent or \
+               node_list[current.adj[j]].visited:
+                # And node is last in adjacency list, pop node and cuntinue one node down in tree
+                if j == len(current.adj)-1:
+                    stack.pop()
+                    print "JA"
+                print "pass"
+                continue
+            # Otherwise continue up tree
+            else:
+                print "elsing"
+                current = node_list[current.adj[j]]
+                stack.append(current)
+                break
+        if stack:
+            current = stack[-1]
+    return False, []
+
+
+def is_in_stack(stack, node):
+    """
+    Sig: list stack[0..n], Node node  ==> Boolean
+    Pre: Stack is list of nodes, node is class Node
+    Post: True if node exists in list, False if node does not
+    Example:
+        is_in_stack(stack1, node1) ==> True
+        is_in_stack(stack1, node1) ==> False
+    """
+    # Variant: len(stack)-i
+    for i in range(len(stack)):
+        if stack[i] == node:
+            return True
+    return False
 
 def print_node_list(node_list):
     for i in range(len(node_list)):
         print_node(node_list[i])
         print ""
+
 
 def print_node(N):
     print "Node:", N.node, "Adjecency:"
@@ -70,127 +184,26 @@ def print_node(N):
         print i
     print "Visited:", N.visited, "." ,"Parent:", N.parent
 
+
 def print_node_nr(N):
     print N.node
 
-def ring_extended(G):
+
+def all_visited(node_list):
     """
-    Sig: graph G(node,edge) ==> boolean, int[0..j-1]
-    Pre:
-    Post:
+    Sig: list node_list[0..n], Node node ==> Boolean
+    Pre: node_list is list of Node
+    Post: True and index of unvisited node if unvisited node exists, False and 0 if not
     Example:
-        ring(g1) ==> False, []
-        ring(g2) ==>  True, [3,7,8,6,3]
+        all_visited(node_list1) ==> True, 4
+        all_visited(node_list2) ==> False, 0
     """
-    init_list = list(G)
-    node_list = []
-
-    for i in range(len(init_list)):
-        node_list.append(Node())
-        node_list[i].node = init_list[i]
-        node_list[i].adj = list(G.adj[i])
-
-    #draw_graph(G, len(G))
-
-    found, link = is_cycle_it(node_list)
-
+    # Variant: len(node_list)-i
     for i in range(len(node_list)):
-        print_node(node_list[i])
-        print ""
-    """
-    if found:
-        current = link[0]
-        result = []
-        result.append(link[0])
-        while(current != link[1]):
-            print current
-            current = node_list[node_list[current].parent].node
-            result.append(current)
+        if not node_list[i].visited:
+            return True, i
+    return False, 0
 
-    return found, result
-    """
-
-def is_cycle_new(node_list):
-    current = node_list[0]
-    stack = [current]
-    while stack:
-        print "STACK:"
-        print_node_list(stack)
-        current.visited = True
-        for j in range(len(current.adj)):
-            print "current node:", current.node
-            #print "Current adj:", node_list[current.adj[j]].node, "current parent:", current.parent, "current parent visited?", node_list[current.adj[j]].visited
-            
-            if len(stack) > 1:
-                node_list[current.node].parent = stack[-2].node
-
-            if node_list[current.adj[j]].node != current.parent and \
-                node_list[current.adj[j]].visited:
-                print "True here"
-                return True
-
-
-            if node_list[current.adj[j]].node == current.parent or \
-               node_list[current.adj[j]].visited:
-                if j == len(current.adj)-1:
-                    stack.pop()
-                    print "JA"
-                print "pass"
-                continue
-
-            else:
-                print "elsing"
-                current = node_list[current.adj[j]]
-                stack.append(current)
-                break
-        if stack:
-           current = stack[-1]
-    return False
-
-def is_class_cycle(node_list, node, parent, found_switch):
-    print "visiting node:", node
-    if node_list[node].visited:
-        print "Return from visited node:", node
-        return
-    node_list[node].visited = True
-    node_list[node].parent = parent
-    # Continue only if node is within range
-    #if node < len(node_list):
-        # Iterate over adjecency list
-    for i in range(len(node_list[node].adj)):
-            # If neighbor is visited and node.adj != parent
-        if node_list[node_list[node].adj[i]].visited and node_list[node_list[node].adj[i]].node != parent:
-            print "Ring found at:", node, node_list[node_list[node].adj[i]].node
-            found_switch = True
-            return True
-            # if adjecent node is not visited
-        elif not node_list[node_list[node].adj[i]].visited:
-            print "Recurring on node:", node_list[node].adj[i]
-            return is_class_cycle(node_list, node_list[node].adj[i], node, found_switch)
-    print "Bottom return from node:", node, "found switch = ", found_switch
-    return 
-
-def is_cycle_it(node_list):
-    # For every node in list
-    for i in range(len(node_list)):
-        #print "iterating over node:"
-        #print_node_nr(node_list[i])
-        node_list[i].visited = True
-        # Iterate over adjacent nodes
-        for j in range(len(node_list[i].adj)):
-            #print "iterating over node adjecency:"
-            #print_node_nr(node_list[node_list[i].adj[j]])
-            if node_list[node_list[i].adj[j]].parent == -1 and \
-               node_list[node_list[i].adj[j]] != node_list[0]:
-                node_list[node_list[i].adj[j]].parent = node_list[i].node
-
-            # If neighbor is visited and node.adj != parent
-            if node_list[node_list[i].adj[j]].visited \
-               and node_list[node_list[i].adj[j]].node != node_list[i].parent:
-                print "cycle found at:", node_list[i].node, node_list[node_list[i].adj[j]].node
-                return True, [node_list[i].node, node_list[node_list[i].adj[j]].node]
-
-    return False, []
 
 def draw_graph(G,r):
     """Draw graph and the detected ring
@@ -258,11 +271,37 @@ class RingTest(unittest.TestCase):
         testgraph.add_edge(6,8)
         self.assertTrue(ring(testgraph))
 
-    def est_simple(self):
+    def test_simple(self):
+        testgraph = nx.Graph()
+        self.assertFalse(ring(testgraph))
+
+    def est_noedge(self): #FIX!!!
+        testgraph = nx.Graph()
+        testgraph.add_node(1)
+        testgraph.add_node(2)
+        self.assertFalse(ring(testgraph))
+
+    def test_simple(self):
         testgraph = nx.Graph([(0,1), (0,2),(1,2)])
         self.assertTrue(ring(testgraph))
 
-    def est_extended_sanity(self):
+    def test_edge0(self):
+        testgraph = nx.Graph([(0,1)])
+        self.assertFalse(ring(testgraph))
+
+    def test_multi(self):
+        testgraph = nx.Graph([(0,1), (2,3), (2,4), (3,4)])
+        self.assertTrue(ring(testgraph))
+
+    def test_mega_multi(self):
+        testgraph = nx.Graph([(0,1), (2,3), (3,4), (5,6), (5,7), (6,7)])
+        self.assertTrue(ring(testgraph))
+
+    def test_trap_multi(self):
+        testgraph = nx.Graph([(0,1), (2,3), (2,4), (3,4), (5,6), (6,7)])
+        self.assertTrue(ring(testgraph))
+
+    def test_extended_sanity(self):
         """sanity test for returned ring"""
         testgraph = nx.Graph([(0,1),(0,2),(0,3),(2,4),(2,5),(3,6),(3,7),(7,8),(6,8)])
         found, thering = ring_extended(testgraph)
@@ -270,6 +309,18 @@ class RingTest(unittest.TestCase):
         self.is_ring(testgraph, thering)
         # Uncomment to visualize the graph and returned ring:
         #draw_graph(testgraph,thering)
+
+    def test_e_multi(self):
+        testgraph = nx.Graph([(0,1), (2,3), (2,4), (3,4)])
+        found, thering = ring_extended(testgraph)
+        self.assertTrue(ring(testgraph))
+        self.is_ring(testgraph, thering)
+
+    def test_e_trap_multi(self):
+        testgraph = nx.Graph([(0,1), (2,3), (2,4), (3,4), (5,6), (6,7)])
+        found, thering = ring_extended(testgraph)
+        self.assertTrue(ring(testgraph))
+        self.is_ring(testgraph, thering)
 
     @classmethod
     def tearDownClass(cls):
