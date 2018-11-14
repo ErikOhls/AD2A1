@@ -25,6 +25,15 @@ except ImportError:
     HAVE_PLT = False
 
 class Node:
+    """
+    Class containing various information about nodes
+
+    Attributes:
+       node(int): Identifier
+       adj(list): List of adjacent nodes
+       visited(boolean): Switch intended to turn on once node is visited
+       parent(int): Identifier of parent node
+    """
     node = 0
     adj = None
     visited = False
@@ -42,11 +51,15 @@ def ring(G):
     if len(G) == 0:
         return False
 
+    # Temporary list used in order to initialize node_list
+    # Type: tuple[]
     init_list = list(G)
+    # List holding all Nodes that make up the graph
+    # Type: Node[]
     node_list = []
 
-    # Variant: len(init_list)-i
     for i in range(len(init_list)):
+    # Variant: len(init_list)-i
         node_list.append(Node())
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
@@ -54,8 +67,8 @@ def ring(G):
     index = 0
     found, set = is_cycle_new(node_list, index)
     not_visited, index = all_visited(node_list)
-    # Invariat: not_visited, found
     while not_visited and not found:
+    # Invariat: not_visited, found
         found, set = is_cycle_new(node_list, index)
         not_visited, index = all_visited(node_list)
     return found
@@ -73,11 +86,15 @@ def ring_extended(G):
     if len(G) == 0:
         return False
 
+    # Temporary list used in order to initialize node_list
+    # Type: tuple[]
     init_list = list(G)
+    # List holding all Nodes that make up the graph
+    # Type: Node[]
     node_list = []
 
-    # Variant: len(init_list)-i
     for i in range(len(init_list)):
+    # Variant: len(init_list)-i
         node_list.append(Node())
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
@@ -85,8 +102,8 @@ def ring_extended(G):
     index = 0
     found, set = is_cycle_new(node_list, index)
     not_visited, index = all_visited(node_list)
-    # Invariat: not_visited, found
     while not_visited and not found:
+    # Invariat: not_visited, found
         found, set = is_cycle_new(node_list, index)
         not_visited, index = all_visited(node_list)
     return found, set
@@ -101,54 +118,57 @@ def is_cycle_new(node_list, index):
         is_cycle(g1) ==> False, []
         is_cycle(g2) ==>  True, [3,7,8,6,3]
     """
+    print "START-----------"
     current = node_list[index]
-    # Initialize stack intended to track current tree of nodes
+    # Initialize stack intended to track current sub tree of nodes
     # Type: Node[]
     stack = [current]
-    # Iterate over tree
-    # Invariant: stack
+    # Iterate over tree. As long as stack contain at least 1 node, there are unexplored nodes in the tree
     while stack:
+    # Invariant: stack
         print "STACK:"
-        print_node_list(stack)
+        #print_node_list(stack)
+        print_all_node_nr(stack)
         current.visited = True
         # Iterate over current node's adjecent nodes
-        # Variant: len(current.adj)-j
         for j in range(len(current.adj)):
+        # Variant: len(current.adj)-j
             print "current node:", current.node
 
             # Set node's parent only if not root node
             if len(stack) > 1:
                 node_list[current.node].parent = stack[-2].node
 
-            # If adjacent node is visited, not parent, and in current stack, cycle has been found
-            if node_list[current.adj[j]].node != current.parent and \
-                node_list[current.adj[j]].visited and \
-                is_in_stack(stack, node_list[current.adj[j]]):
-                print "True here"
+            is_parent = node_list[current.adj[j]].node == current.parent
+            is_visited = node_list[current.adj[j]].visited
+            is_in_current_stack = is_in_stack(stack, node_list[current.adj[j]])
+            # Following conditions means cycle has been found
+            if not is_parent and is_visited and is_in_current_stack:
+                print "Found cycle"
+                # Initialize list intended to keep set of nodes making up cycle
+                # Type: int[]
                 set = []
                 key_node = node_list[current.adj[j]].node
                 # Add node number to set until root of cycle is reached
-                # Invariant: key_node
                 while current.node != key_node:
-                    print current.node, key_node
+                # Invariant: key_node
                     set.append(stack.pop().node)
                     current = stack[-1]
                 set.append(stack.pop().node)
                 set.append(set[0])
                 return True, set
 
-            # If adjacent node is same as parent or visited
-            if node_list[current.adj[j]].node == current.parent or \
-               node_list[current.adj[j]].visited:
-                # And node is last in adjacency list, pop node and cuntinue one node down in tree
+            # Ignore parents and visited nodes
+            if is_parent or is_visited:
+                # If all of adjacency list has been exhausted, track back one node and continue
                 if j == len(current.adj)-1:
                     stack.pop()
-                    print "JA"
-                print "pass"
-                continue
-            # Otherwise continue up tree
+                    print "Reached end of adjacency list"
+                    break
+                print "Adjacenct node already visited"
+            # Continue up the tree
             else:
-                print "elsing"
+                print "Continuing deeper"
                 current = node_list[current.adj[j]]
                 stack.append(current)
                 break
@@ -166,8 +186,8 @@ def is_in_stack(stack, node):
         is_in_stack(stack1, node1) ==> True
         is_in_stack(stack1, node1) ==> False
     """
-    # Variant: len(stack)-i
     for i in range(len(stack)):
+    # Variant: len(stack)-i
         if stack[i] == node:
             return True
     return False
@@ -185,6 +205,10 @@ def print_node(N):
     print "Visited:", N.visited, "." ,"Parent:", N.parent
 
 
+def print_all_node_nr(node_list):
+    for i in range(len(node_list)):
+        print_node_nr(node_list[i])
+
 def print_node_nr(N):
     print N.node
 
@@ -198,8 +222,8 @@ def all_visited(node_list):
         all_visited(node_list1) ==> True, 4
         all_visited(node_list2) ==> False, 0
     """
-    # Variant: len(node_list)-i
     for i in range(len(node_list)):
+    # Variant: len(node_list)-i
         if not node_list[i].visited:
             return True, i
     return False, 0
