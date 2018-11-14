@@ -48,22 +48,30 @@ def ring(G):
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
 
-    found_switch = False
+    return is_cycle_new(node_list)
 
-    is_class_cycle(node_list, node_list[0].node, -1, found_switch)
-
-    for i in range(len(node_list)):
-        print_node(node_list[i])
-        print ""
+    print "NODE LIST"
+    print_node_list(node_list)
 
     #draw_graph(G, len(G))
 
+    #found, link = is_cycle_it(node_list)
+
+    #return found
+
+def print_node_list(node_list):
+    for i in range(len(node_list)):
+        print_node(node_list[i])
+        print ""
 
 def print_node(N):
     print "Node:", N.node, "Adjecency:"
     for i in N.adj:
         print i
     print "Visited:", N.visited, "." ,"Parent:", N.parent
+
+def print_node_nr(N):
+    print N.node
 
 def ring_extended(G):
     """
@@ -74,6 +82,70 @@ def ring_extended(G):
         ring(g1) ==> False, []
         ring(g2) ==>  True, [3,7,8,6,3]
     """
+    init_list = list(G)
+    node_list = []
+
+    for i in range(len(init_list)):
+        node_list.append(Node())
+        node_list[i].node = init_list[i]
+        node_list[i].adj = list(G.adj[i])
+
+    #draw_graph(G, len(G))
+
+    found, link = is_cycle_it(node_list)
+
+    for i in range(len(node_list)):
+        print_node(node_list[i])
+        print ""
+    """
+    if found:
+        current = link[0]
+        result = []
+        result.append(link[0])
+        while(current != link[1]):
+            print current
+            current = node_list[node_list[current].parent].node
+            result.append(current)
+
+    return found, result
+    """
+
+def is_cycle_new(node_list):
+    current = node_list[0]
+    stack = [current]
+    while stack:
+        print "STACK:"
+        print_node_list(stack)
+        current.visited = True
+        for j in range(len(current.adj)):
+            print "current node:", current.node
+            #print "Current adj:", node_list[current.adj[j]].node, "current parent:", current.parent, "current parent visited?", node_list[current.adj[j]].visited
+            
+            if len(stack) > 1:
+                node_list[current.node].parent = stack[-2].node
+
+            if node_list[current.adj[j]].node != current.parent and \
+                node_list[current.adj[j]].visited:
+                print "True here"
+                return True
+
+
+            if node_list[current.adj[j]].node == current.parent or \
+               node_list[current.adj[j]].visited:
+                if j == len(current.adj)-1:
+                    stack.pop()
+                    print "JA"
+                print "pass"
+                continue
+
+            else:
+                print "elsing"
+                current = node_list[current.adj[j]]
+                stack.append(current)
+                break
+        if stack:
+           current = stack[-1]
+    return False
 
 def is_class_cycle(node_list, node, parent, found_switch):
     print "visiting node:", node
@@ -83,25 +155,47 @@ def is_class_cycle(node_list, node, parent, found_switch):
     node_list[node].visited = True
     node_list[node].parent = parent
     # Continue only if node is within range
-    if node < len(node_list):
+    #if node < len(node_list):
         # Iterate over adjecency list
-        for i in range(len(node_list[node].adj)):
+    for i in range(len(node_list[node].adj)):
             # If neighbor is visited and node.adj != parent
-            if node_list[node_list[node].adj[i]].visited and node_list[node_list[node].adj[i]].node != parent:
-                print "Ring found at:", node, node_list[node_list[node].adj[i]].node
-                found_switch = True
-                return found_switch
+        if node_list[node_list[node].adj[i]].visited and node_list[node_list[node].adj[i]].node != parent:
+            print "Ring found at:", node, node_list[node_list[node].adj[i]].node
+            found_switch = True
+            return True
+            # if adjecent node is not visited
+        elif not node_list[node_list[node].adj[i]].visited:
             print "Recurring on node:", node_list[node].adj[i]
-            is_class_cycle(node_list, node_list[node].adj[i], node, found_switch)
-    print "Bottom return from node:", node
-    return found_switch
+            return is_class_cycle(node_list, node_list[node].adj[i], node, found_switch)
+    print "Bottom return from node:", node, "found switch = ", found_switch
+    return 
 
+def is_cycle_it(node_list):
+    # For every node in list
+    for i in range(len(node_list)):
+        #print "iterating over node:"
+        #print_node_nr(node_list[i])
+        node_list[i].visited = True
+        # Iterate over adjacent nodes
+        for j in range(len(node_list[i].adj)):
+            #print "iterating over node adjecency:"
+            #print_node_nr(node_list[node_list[i].adj[j]])
+            if node_list[node_list[i].adj[j]].parent == -1 and \
+               node_list[node_list[i].adj[j]] != node_list[0]:
+                node_list[node_list[i].adj[j]].parent = node_list[i].node
+
+            # If neighbor is visited and node.adj != parent
+            if node_list[node_list[i].adj[j]].visited \
+               and node_list[node_list[i].adj[j]].node != node_list[i].parent:
+                print "cycle found at:", node_list[i].node, node_list[node_list[i].adj[j]].node
+                return True, [node_list[i].node, node_list[node_list[i].adj[j]].node]
+
+    return False, []
 
 def draw_graph(G,r):
     """Draw graph and the detected ring
     """
     if not HAVE_PLT:
-        print "dont have plt"
         return
     pos = nx.spring_layout(G)
     plt.axis('off')
@@ -158,16 +252,17 @@ class RingTest(unittest.TestCase):
         This is a simple sanity check for your function;
         passing is not a guarantee of correctness.
         """
-        """
+
         testgraph = nx.Graph([(0,1),(0,2),(0,3),(2,4),(2,5),(3,6),(3,7),(7,8)])
         self.assertFalse(ring(testgraph))
         testgraph.add_edge(6,8)
         self.assertTrue(ring(testgraph))
-        """
+
+    def est_simple(self):
         testgraph = nx.Graph([(0,1), (0,2),(1,2)])
         self.assertTrue(ring(testgraph))
-        '''
-   def test_extended_sanity(self):
+
+    def est_extended_sanity(self):
         """sanity test for returned ring"""
         testgraph = nx.Graph([(0,1),(0,2),(0,3),(2,4),(2,5),(3,6),(3,7),(7,8),(6,8)])
         found, thering = ring_extended(testgraph)
@@ -175,7 +270,7 @@ class RingTest(unittest.TestCase):
         self.is_ring(testgraph, thering)
         # Uncomment to visualize the graph and returned ring:
         #draw_graph(testgraph,thering)
-        '''
+
     @classmethod
     def tearDownClass(cls):
         if HAVE_PLT:
