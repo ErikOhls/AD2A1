@@ -8,7 +8,7 @@ Student Names:
 '''
 import unittest
 import networkx as nx
-print(nx.__version__)
+
 """IMPORTANT:
 We're using networkx only to provide a reliable graph
 object.  Your solution may NOT rely on the networkx implementation of
@@ -67,11 +67,11 @@ def ring(G):
         node_list[i].adj = list(G.adj[i])
 
     index = 0
-    found, set = is_cycle_new(node_list, index)
+    found, set = is_cycle(node_list, index)
     not_visited, index = all_visited(node_list)
     while not_visited and not found:
     # Invariat: not_visited, found
-        found, set = is_cycle_new(node_list, index)
+        found, set = is_cycle(node_list, index)
         not_visited, index = all_visited(node_list)
     return found
 
@@ -103,17 +103,16 @@ def ring_extended(G):
         node_list[i].adj = list(G.adj[i])
 
     index = 0
-    found, set = is_cycle_new(node_list, index)
+    found, set = is_cycle(node_list, index)
     not_visited, index = all_visited(node_list)
     while not_visited and not found:
     # Invariat: not_visited, found
-        found, set = is_cycle_new(node_list, index)
+        found, set = is_cycle(node_list, index)
         not_visited, index = all_visited(node_list)
-    print "Return extended:", found, set
     return found, set
 
 
-def is_cycle_new(node_list, index):
+def is_cycle(node_list, index):
     """
     Sig: Node node_list[0..n], int index  ==> boolean, int[0..j-1]
     Pre: node_list is list of nodes, index is within range of list
@@ -122,7 +121,6 @@ def is_cycle_new(node_list, index):
         is_cycle(g1) ==> False, []
         is_cycle(g2) ==>  True, [3,7,8,6,3]
     """
-    print "START-----------"
     current = node_list[index]
     # Initialize stack intended to track current sub tree of nodes
     # Type: Node[]
@@ -130,15 +128,11 @@ def is_cycle_new(node_list, index):
     # Iterate over tree. As long as stack contain at least 1 node, there are unexplored nodes in the tree
     while stack:
     # Invariant: stack
-        print "STACK:"
-        #print_node_list(stack)
-        print_all_node_nr(stack)
         current.visited = True
         # Iterate over current node's adjecent nodes
         for j in range(len(current.adj)):
         # Variant: len(current.adj)-j
         # Invariant: len(current.adj)
-            print "current node:", current.node
 
             # Set node's parent only if not root node
             if len(stack) > 1:
@@ -149,7 +143,6 @@ def is_cycle_new(node_list, index):
             is_in_current_stack = is_in_stack(stack, node_list[current.adj[j]])
             # Following conditions means cycle has been found
             if not is_parent and is_visited and is_in_current_stack:
-                print "Found cycle"
                 # Initialize list intended to keep set of nodes making up cycle
                 # Type: int[]
                 set = []
@@ -169,12 +162,10 @@ def is_cycle_new(node_list, index):
                 # If all of adjacency list has been exhausted, track back one node and continue
                 if j == len(current.adj)-1:
                     stack.pop()
-                    print "Reached end of adjacency list"
                     break
-                print "Adjacenct node already visited"
+
             # Continue up the tree
             else:
-                print "Continuing deeper"
                 current = node_list[current.adj[j]]
                 stack.append(current)
                 break
@@ -198,26 +189,6 @@ def is_in_stack(stack, node):
         if stack[i] == node:
             return True
     return False
-
-def print_node_list(node_list):
-    for i in range(len(node_list)):
-        print_node(node_list[i])
-        print ""
-
-
-def print_node(N):
-    print "Node:", N.node, "Adjecency:"
-    for i in N.adj:
-        print i
-    print "Visited:", N.visited, "." ,"Parent:", N.parent
-
-
-def print_all_node_nr(node_list):
-    for i in range(len(node_list)):
-        print_node_nr(node_list[i])
-
-def print_node_nr(N):
-    print N.node
 
 
 def all_visited(node_list):
