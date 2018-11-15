@@ -11,8 +11,9 @@ import unittest
 def birthday_present(P, n, t):
     '''
     Sig: int[0..n-1], int, int --> Boolean
-    Pre:
-    Post:
+    Pre: P is a set of positive integers, n is the lenght of the set P,
+         and t is the target value represented by a positive integer.
+    Post: Returns true if there is a subset P' of P that sums up to t.
     Example: P = [2, 32, 234, 35, 12332, 1, 7, 56]
              birthday_present(P, len(P), 299) = True
              birthday_present(P, len(P), 11) = False
@@ -38,8 +39,10 @@ def birthday_present(P, n, t):
 def birthday_present_subset(P, n, t):
     '''
     Sig: int[0..n-1], int, int --> int[0..m]
-    Pre:
-    Post:
+    Pre: P is a set of positive integers, n is the lenght of the set P
+         and t is the target value represented by a positive integer.
+    Post: Returns the subset P' of P that sums up to the target t if such exists,
+          else it returns an empty set.
     Example: P = [2, 32, 234, 35, 12332, 1, 7, 56]
              birthday_present_subset(P, len(P), 299) = [56, 7, 234, 2]
              birthday_present_subset(P, len(P), 11) = []
@@ -57,7 +60,9 @@ def birthday_present_subset(P, n, t):
     # Calculate subset if subset exists
     if A[n-1][t]:
         result = []
+        # Invariant t > 0
         while t > 0:
+            # Variant length(n)-i
             for i in range(n):
                 if A[i][t]:
                     result = result + [P[i]]
@@ -70,13 +75,22 @@ def birthday_present_subset(P, n, t):
         return[]
 
 def boolean_matrix_constructor(P, n, t, A):
+    '''
+    Sig: int[0..n-1], int, int, boolean[][] --> boolean[][]
+    Pre: P is a set of positive integers, n is the lenght of the set P,
+         t is the target value represented by a positive integer and A
+         is a two dimensional matrix where booleans is stored.
+    Post: returns a two dimensional matrix A filled with booleans.
+    '''
     # Sum = 0 is always true
     for i in range(n + 1):
         A[i][0] = True
 
     # For each row
+    # Variant length(n)-i
     for i in range(n):
         # For each column
+        # Variant length(t+1)-j
         for j in range(t + 1):
             # If current Set value is equal to current Target value
             if P[i] == j:
@@ -89,14 +103,6 @@ def boolean_matrix_constructor(P, n, t, A):
                 # If whatever you have left after subtracting Set value from current target value
                 if A[i-1][j-P[i]] == True:
                     A[i][j] = True;
-
-
-    # Visualize Matrix
-    print " "
-    for row in A:
-        for val in row:
-            print '{:4}'.format(val),
-        print
 
     return A
 
