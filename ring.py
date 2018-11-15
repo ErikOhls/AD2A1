@@ -71,6 +71,7 @@ def ring(G):
     not_visited, index = all_visited(node_list)
     while not_visited and not found:
     # Invariat: not_visited, found
+        print "loop in Ring"
         found, set = is_cycle_new(node_list, index)
         not_visited, index = all_visited(node_list)
     return found
@@ -134,6 +135,9 @@ def is_cycle_new(node_list, index):
         #print_node_list(stack)
         print_all_node_nr(stack)
         current.visited = True
+        # If no adjacent node, no ring is possible
+        if len(current.adj) == 0:
+            return False, []
         # Iterate over current node's adjecent nodes
         for j in range(len(current.adj)):
         # Variant: len(current.adj)-j
@@ -291,7 +295,7 @@ class RingTest(unittest.TestCase):
             "start and end not equal: {} != {}".format(path[0],path[-1]))
 
 
-    def test_sanity(self):
+    def est_sanity(self):
         """Sanity Test
 
         This is a simple sanity check for your function;
@@ -303,6 +307,79 @@ class RingTest(unittest.TestCase):
         testgraph.add_edge(6,8)
         self.assertTrue(ring(testgraph))
 
+    def test_timeout(self):
+        G = nx.Graph();
+        G.add_node(0);
+        G.add_node(1);
+        G.add_node(2);
+        G.add_node(3);
+        G.add_node(4);
+        G.add_node(5);
+        G.add_node(6);
+        G.add_node(7);
+        G.add_node(8);
+        G.add_edge(0, 1);
+        G.add_edge(0, 4);
+        G.add_edge(4, 5);
+        G.add_edge(1, 2);
+        G.add_edge(5, 7);
+        G.add_edge(1, 2);
+        G.add_edge(6, 8);
+        G.add_edge(2, 8);
+        G.add_edge(1, 8);
+        G.add_edge(0, 6);
+        G.add_edge(0, 6);
+        G.add_edge(4, 6);
+        G.add_edge(1, 2);
+        G.add_edge(4, 8);
+        G.add_edge(3, 8);
+        G.add_edge(3, 8);
+        G.add_edge(3, 5);
+        G.add_edge(3, 8);
+        G.add_edge(2, 4);
+        G.add_edge(0, 7);
+        G.add_edge(1, 4);
+        G.add_edge(2, 8);
+        G.add_edge(0, 4);
+        G.add_edge(0, 2);
+        G.add_edge(1, 3);
+        G.add_edge(2, 3);
+        G.add_edge(1, 2);
+        G.add_edge(4, 6);
+        G.add_edge(1, 4);
+        testgraph = G
+        self.assertTrue(ring(testgraph))
+
+    def test_timeout2(self):
+        G = nx.Graph();
+        G.add_node(0);
+        G.add_node(1);
+        G.add_node(2);
+        G.add_node(3);
+        G.add_node(4);
+        G.add_node(5);
+        G.add_edge(1, 2);
+        G.add_edge(2, 3);
+        G.add_edge(2, 4);
+        G.add_edge(0, 5);
+        G.add_edge(0, 4);
+        G.add_edge(1, 2);
+        testgraph = G
+        self.assertFalse(ring(testgraph))
+
+    def test_timeout2(self):
+        G = nx.Graph();
+        G.add_node(0);
+        G.add_node(1);
+        G.add_node(2);
+        G.add_node(3);
+        G.add_node(4);
+        G.add_node(5);
+        G.add_node(6);
+        testgraph = G
+        self.assertFalse(ring(testgraph))
+
+    '''
     def test_simple(self):
         testgraph = nx.Graph()
         self.assertFalse(ring(testgraph))
@@ -359,7 +436,7 @@ class RingTest(unittest.TestCase):
         found, thering = ring_extended(testgraph)
         self.assertFalse(ring(testgraph))
         self.is_ring(testgraph, thering)
-    
+    '''
     @classmethod
     def tearDownClass(cls):
         if HAVE_PLT:
