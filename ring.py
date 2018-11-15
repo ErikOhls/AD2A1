@@ -8,6 +8,7 @@ Student Names:
 '''
 import unittest
 import networkx as nx
+print(nx.__version__)
 """IMPORTANT:
 We're using networkx only to provide a reliable graph
 object.  Your solution may NOT rely on the networkx implementation of
@@ -60,6 +61,7 @@ def ring(G):
 
     for i in range(len(init_list)):
     # Variant: len(init_list)-i
+    # Invariant: len(init_list)
         node_list.append(Node())
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
@@ -95,6 +97,7 @@ def ring_extended(G):
 
     for i in range(len(init_list)):
     # Variant: len(init_list)-i
+    # Invariant: len(init_list)
         node_list.append(Node())
         node_list[i].node = init_list[i]
         node_list[i].adj = list(G.adj[i])
@@ -106,6 +109,7 @@ def ring_extended(G):
     # Invariat: not_visited, found
         found, set = is_cycle_new(node_list, index)
         not_visited, index = all_visited(node_list)
+    print "Return extended:", found, set
     return found, set
 
 
@@ -133,6 +137,7 @@ def is_cycle_new(node_list, index):
         # Iterate over current node's adjecent nodes
         for j in range(len(current.adj)):
         # Variant: len(current.adj)-j
+        # Invariant: len(current.adj)
             print "current node:", current.node
 
             # Set node's parent only if not root node
@@ -151,6 +156,7 @@ def is_cycle_new(node_list, index):
                 key_node = node_list[current.adj[j]].node
                 # Add node number to set until root of cycle is reached
                 while current.node != key_node:
+                # Variant current.node
                 # Invariant: key_node
                     set.append(stack.pop().node)
                     current = stack[-1]
@@ -188,6 +194,7 @@ def is_in_stack(stack, node):
     """
     for i in range(len(stack)):
     # Variant: len(stack)-i
+    # Invariant: len(stack)
         if stack[i] == node:
             return True
     return False
@@ -224,6 +231,7 @@ def all_visited(node_list):
     """
     for i in range(len(node_list)):
     # Variant: len(node_list)-i
+    # Invariant len(node_list)
         if not node_list[i].visited:
             return True, i
     return False, 0
@@ -346,6 +354,12 @@ class RingTest(unittest.TestCase):
         self.assertTrue(ring(testgraph))
         self.is_ring(testgraph, thering)
 
+    def est_e_edge0(self): # is_ring fails?
+        testgraph = nx.Graph([(0,1)])
+        found, thering = ring_extended(testgraph)
+        self.assertFalse(ring(testgraph))
+        self.is_ring(testgraph, thering)
+    
     @classmethod
     def tearDownClass(cls):
         if HAVE_PLT:
