@@ -265,7 +265,7 @@ class RingTest(unittest.TestCase):
             "start and end not equal: {} != {}".format(path[0],path[-1]))
 
 
-    def est_sanity(self):
+    def test_sanity(self):
         """Sanity Test
 
         This is a simple sanity check for your function;
@@ -337,7 +337,7 @@ class RingTest(unittest.TestCase):
         testgraph = G
         self.assertFalse(ring(testgraph))
 
-    def test_timeout2(self):
+    def test_timeout3(self):
         G = nx.Graph();
         G.add_node(0);
         G.add_node(1);
@@ -349,7 +349,7 @@ class RingTest(unittest.TestCase):
         testgraph = G
         self.assertFalse(ring(testgraph))
 
-    '''
+    
     def test_simple(self):
         testgraph = nx.Graph()
         self.assertFalse(ring(testgraph))
@@ -406,7 +406,7 @@ class RingTest(unittest.TestCase):
         found, thering = ring_extended(testgraph)
         self.assertFalse(ring(testgraph))
         self.is_ring(testgraph, thering)
-    '''
+    
     @classmethod
     def tearDownClass(cls):
         if HAVE_PLT:
